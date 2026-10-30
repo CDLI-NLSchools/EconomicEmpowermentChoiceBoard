@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Explore the Land Choice Board</title>
+<style>
+  :root{
+    --ink:#1c2430; --muted:#5a6572; --accent:#0b5cad; --accent-dark:#084a8a;
+    --card:#ffffff; --bg:#eef2f6; --line:#d4dce4; --soft:#f4f8fc;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5;}
+  .wrap{max-width:760px;margin:0 auto;padding:16px 14px 48px;}
+  header{margin:10px 0 14px;}
+  h1{font-size:1.7rem;margin:0 0 4px;}
+  h2{font-size:1.15rem;margin:0 0 8px;}
+  h3{font-size:1rem;margin:0 0 6px;}
+  .subtitle{color:var(--muted);font-size:1rem;margin:0 0 10px;}
+  .intro{font-size:1.02rem;margin:0;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:16px;margin:14px 0;box-shadow:0 1px 3px rgba(20,40,60,.06);}
+  .helper{color:var(--muted);font-size:.95rem;margin:0 0 10px;}
+  .boardtext{margin:0 0 10px;}
+  .boardtext:last-child{margin-bottom:0;}
+  fieldset{border:0;margin:0;padding:0;}
+  legend{font-weight:600;margin:0 0 8px;padding:0;}
+  .choices{display:grid;gap:10px;}
+  .choice-card{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);
+    border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff;}
+  .choice-card:hover{border-color:var(--accent);}
+  .choice-card:focus-within{outline:3px solid #f2b01e;outline-offset:2px;}
+  .choice-card input[type=radio]{margin-top:5px;flex:none;width:20px;height:20px;accent-color:var(--accent);}
+  .choice-card .ct{display:block;font-weight:700;}
+  .choice-card .cd{display:block;color:var(--muted);font-size:.95rem;}
+  .status{font-weight:600;margin:12px 0 0;min-height:1.4em;}
+  .prompt{margin:0 0 18px;}
+  .prompt:last-child{margin-bottom:0;}
+  .prompt label{display:block;font-weight:600;margin:0 0 6px;}
+  .prompt .helper{margin:0 0 6px;}
+  textarea,input[type=text],select{
+    width:100%;padding:10px 12px;font:inherit;font-size:1rem;
+    border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);}
+  textarea{min-height:80px;resize:vertical;}
+  textarea.small{min-height:56px;}
+  textarea:focus-visible,input:focus-visible,select:focus-visible,button:focus-visible,.chip:focus-visible{
+    outline:3px solid #f2b01e;outline-offset:2px;}
+  .row-line{display:flex;gap:8px;align-items:center;margin:0 0 8px;}
+  .row-line input[type=text]{flex:1;}
+  button{cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;
+    padding:9px 16px;border-radius:8px;min-height:44px;font-weight:600;font:inherit;}
+  button:hover{background:var(--accent-dark);}
+  button.secondary{background:#fff;color:var(--accent);}
+  button.secondary:hover{background:var(--soft);}
+  button.smallbtn{min-height:40px;padding:6px 12px;font-weight:500;}
+  .btnrow{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 0;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{cursor:pointer;font:inherit;border:1px solid var(--accent);background:#fff;color:var(--accent);
+    padding:8px 14px;border-radius:999px;min-height:44px;font-weight:600;}
+  .chip:hover{background:var(--soft);}
+  .chip[aria-pressed="true"]{background:var(--accent);color:#fff;}
+  .panels{display:grid;gap:12px;}
+  .panel{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--soft);}
+  .panel legend{font-weight:700;}
+  .panel .prompt{margin-bottom:12px;}
+  .photo-entry{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--soft);margin:0 0 12px;}
+  .photo-entry h3{margin-bottom:8px;}
+  .hidden{display:none !important;}
+  .answer{margin:0 0 18px;}
+  .answer h3{font-size:1rem;margin:0 0 4px;}
+  .answer p{margin:0 0 6px;white-space:pre-wrap;}
+  .answer p:last-child{margin-bottom:0;}
+  .answer ul{margin:0;padding-left:20px;}
+  .answer p.blank,.answer li.blank{color:var(--muted);font-style:italic;}
+  .copied{font-weight:600;color:#177245;min-height:1.3em;margin:10px 0 0;}
+  .note{color:var(--muted);font-size:.95rem;}
+  .warn{color:#9a3412;font-weight:600;min-height:1.3em;margin:10px 0 0;}
+  @media (min-width:641px){
+    .panels{grid-template-columns:1fr 1fr;}
+    .choices{grid-template-columns:1fr 1fr 1fr;}
+  }
+  @media (max-width:680px){h1{font-size:1.4rem;}}
+  @media print{
+    body{background:#fff;}
+    .noprint{display:none !important;}
+    .card{box-shadow:none;border-color:#999;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Explore the Land Choice Board</h1>
+<p class="subtitle">Grade 7 STEAM, Explore the Land, Lesson 7 Extension: Economic Empowerment</p>
+<p class="intro">Choose ONE of the Extension Activities below and complete it. Plan your work here, then use the summary at the end to keep a copy of your plan.</p>
+</header>
+<main>
+<section id="formView" aria-label="Choice board and activity workspaces">
+
+<div class="card">
+<fieldset>
+<legend>Choose ONE activity</legend>
+<div class="choices" role="radiogroup" aria-label="Choose one activity">
+<label class="choice-card">
+<input type="radio" name="activity" value="comic">
+<span><span class="ct">Create a Comic Strip</span>
+<span class="cd">Plan a comic strip with an original character (or your pet rock).</span></span>
+</label>
+<label class="choice-card">
+<input type="radio" name="activity" value="poster">
+<span><span class="ct">Create a Digital Poster</span>
+<span class="cd">Plan a poster that delivers information on an important topic.</span></span>
+</label>
+<label class="choice-card">
+<input type="radio" name="activity" value="photo">
+<span><span class="ct">Create a Photo Essay of Your Pet Rock</span>
+<span class="cd">Plan a photo essay with captions from your pet rock's point of view.</span></span>
+</label>
+</div>
+</fieldset>
+<p class="status" id="choiceStatus" aria-live="polite"></p>
+</div>
+
+<section id="ws-comic" class="hidden" aria-label="Create a Comic Strip workspace">
+<div class="card">
+<h2>Create a Comic Strip</h2>
+<p class="boardtext">A comic strip tells a story with graphics, captions and speech in one or multiple frames.</p>
+<p class="boardtext">Create a comic strip with an original character (or your pet rock) to tell a story on the concepts outlined in the Extension Activities video.</p>
+<p class="boardtext">When planning your comic strip, consider the following elements: Colour; Speech or thought bubbles; Graphics; Captions.</p>
+</div>
+<div class="card">
+<h2>Plan your comic strip</h2>
+<div class="prompt">
+<label for="comicCharacter">Main character</label>
+<p class="helper">An original character, or your pet rock. Give your character a name.</p>
+<input type="text" id="comicCharacter">
+</div>
+<div class="prompt">
+<label for="comicStory">My story</label>
+<p class="helper">What happens in your story, from the beginning to the end?</p>
+<textarea id="comicStory" rows="4"></textarea>
+</div>
+<div class="prompt">
+<label for="comicColour">Colour</label>
+<p class="helper">How will you use colour in your strip?</p>
+<input type="text" id="comicColour">
+</div>
+<fieldset>
+<legend>Choose a template</legend>
+<div class="chips" id="layoutChips" role="group" aria-label="Choose a comic strip template">
+<button type="button" class="chip" data-layout="A" aria-pressed="true">Template 1: 6 frames, two rows of three</button>
+<button type="button" class="chip" data-layout="B" aria-pressed="false">Template 2: 6 frames, slanted frames in the middle</button>
+<button type="button" class="chip" data-layout="C" aria-pressed="false">Template 3: 5 frames, one tall frame on the left</button>
+<button type="button" class="chip" data-layout="D" aria-pressed="false">Template 4: 5 frames, two wide frames across the top</button>
+</div>
+</fieldset>
+</div>
+<div class="card">
+<h2>Frame by frame</h2>
+<p class="helper">Plan each frame of your strip. You can copy bubble shapes and graphics into your frames when you draw the real thing.</p>
+<div class="panels" id="panelList"></div>
+</div>
+</section>
+
+<section id="ws-poster" class="hidden" aria-label="Create a Digital Poster workspace">
+<div class="card">
+<h2>Create a Digital Poster</h2>
+<p class="boardtext">A poster combines words and visuals to deliver information to an audience on an important topic. Using different color fonts, backgrounds, along with a variety of shapes and images can create mood and show relationships between topics and ideas.</p>
+<p class="boardtext">When planning for your poster, consider the following design elements:</p>
+</div>
+<div class="card">
+<h2>Plan your poster</h2>
+<div class="prompt">
+<label for="posterTopic">My topic</label>
+<p class="helper">The important topic your poster will deliver information about.</p>
+<input type="text" id="posterTopic">
+</div>
+<div class="prompt">
+<label for="posterAudience">My audience</label>
+<p class="helper">Who is your poster for?</p>
+<input type="text" id="posterAudience">
+</div>
+<div class="prompt">
+<label for="posterHeading">Heading</label>
+<p class="helper">The big title at the top of your poster.</p>
+<input type="text" id="posterHeading">
+</div>
+<div class="prompt">
+<label id="infoLabel">Information on my poster</label>
+<p class="helper">The explanatory text your poster will carry. Add one point per row, and add as many rows as you need.</p>
+<div id="infoList" role="group" aria-labelledby="infoLabel"></div>
+<div class="btnrow noprint">
+<button type="button" class="secondary smallbtn" id="addInfo">Add another point</button>
+</div>
+</div>
+</div>
+<div class="card">
+<h2>My design plan</h2>
+<div class="prompt">
+<label for="posterFonts">Fonts</label>
+<p class="helper">Use a variety of font styles and sizes to highlight important information. How will you use fonts?</p>
+<textarea id="posterFonts" class="small" rows="2"></textarea>
+</div>
+<div class="prompt">
+<label for="posterVisuals">Visuals</label>
+<p class="helper">Use a variety of shapes, drawings, pictures, etc. to help convey the information. What visuals will you use?</p>
+<textarea id="posterVisuals" class="small" rows="2"></textarea>
+</div>
+<div class="prompt">
+<label for="posterColor">Color</label>
+<p class="helper">Use a variety of colors that suit the mood of your poster. What colors will you use, and what mood will they set?</p>
+<textarea id="posterColor" class="small" rows="2"></textarea>
+</div>
+<div class="prompt">
+<label for="posterOrganization">Organization</label>
+<p class="helper">It is important that your poster follows a logical order, so it is easy for the audience to understand. How will you organize your poster?</p>
+<textarea id="posterOrganization" class="small" rows="2"></textarea>
+</div>
+</div>
+</section>
+
+<section id="ws-photo" class="hidden" aria-label="Create a Photo Essay of Your Pet Rock workspace">
+<div class="card">
+<h2>Create a Photo Essay of Your Pet Rock</h2>
+<p class="boardtext">A photo essay uses photos and captions to display knowledge of a particular subject.</p>
+<p class="boardtext">Take your pet rock and go for a walk. Photograph them with the particulars outlined in the Extension Activities video, or find photos online and put your pet rock in them. Then create a photo essay.</p>
+<p class="boardtext">When planning your photo essay, consider the following: Photos; Captions to display the information from your pet rock's point of view; Shapes for attention and balance; A title; White Space (which can actually be any colour).</p>
+</div>
+<div class="card">
+<h2>Plan your photo essay</h2>
+<div class="prompt">
+<label for="photoTitle">Title</label>
+<p class="helper">Give your photo essay a title.</p>
+<input type="text" id="photoTitle">
+</div>
+<div class="prompt">
+<label for="photoRockName">My pet rock's name</label>
+<input type="text" id="photoRockName">
+</div>
+<div id="photoList"></div>
+<div class="btnrow noprint">
+<button type="button" class="secondary smallbtn" id="addPhoto">Add another photo</button>
+</div>
+</div>
+<div class="card">
+<h2>My design plan</h2>
+<div class="prompt">
+<label for="photoShapes">Shapes for attention and balance</label>
+<p class="helper">What shapes will you place around your photos to catch the eye and balance the page?</p>
+<input type="text" id="photoShapes">
+</div>
+<div class="prompt">
+<label for="photoSpace">White space</label>
+<p class="helper">White space can actually be any colour. What background colour will you leave around your photos?</p>
+<input type="text" id="photoSpace">
+</div>
+</div>
+</section>
+
+<div class="card">
+<h2>Finish</h2>
+<p class="helper">When your plan is ready, look it over in the summary. You can print it or copy it to keep with your work.</p>
+<div class="btnrow noprint">
+<button type="button" id="seeWork">See my work</button>
+</div>
+<p class="warn" id="finishWarn" aria-live="polite"></p>
+<p class="note">Your answers stay on this page. Nothing is sent anywhere, and nothing is saved online.</p>
+</div>
+
+</section>
+<section id="summaryView" class="card hidden" aria-label="Your work">
+<h2>My work</h2>
+<div id="answers"></div>
+<div class="btnrow noprint">
+<button type="button" id="printBtn">Print</button>
+<button type="button" id="copyBtn" class="secondary">Copy</button>
+<button type="button" id="backEdit" class="secondary">Back and edit</button>
+</div>
+<p id="copyNote" class="copied noprint" aria-live="polite"></p>
+</section>
+</main>
+</div>
+<script>
+var TITLES = {
+  comic: "Create a Comic Strip",
+  poster: "Create a Digital Poster",
+  photo: "Create a Photo Essay of Your Pet Rock"
+};
+var LAYOUTS = {
+  A: { label: "Template 1: 6 frames, two rows of three", count: 6 },
+  B: { label: "Template 2: 6 frames, slanted frames in the middle", count: 6 },
+  C: { label: "Template 3: 5 frames, one tall frame on the left", count: 5 },
+  D: { label: "Template 4: 5 frames, two wide frames across the top", count: 5 }
+};
+var BUBBLE_TYPES = ["Speech bubble", "Thought bubble", "Shout burst", "No bubble"];
+var state = {
+  choice: "",
+  layout: "A",
+  panels: []
+};
+for (var pi = 0; pi < 6; pi++) {
+  state.panels.push({ caption: "", bubbleType: "Speech bubble", bubble: "", graphics: "" });
+}
+
+function escapeHtml(text) {
+  return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function val(id) {
+  var el = document.getElementById(id);
+  return el ? el.value.trim() : "";
+}
+
+/* ---------- choice selection ---------- */
+function setChoice(choice) {
+  state.choice = choice || "";
+  ["comic", "poster", "photo"].forEach(function (key) {
+    document.getElementById("ws-" + key).classList.toggle("hidden", state.choice !== key);
+    var radio = document.querySelector("input[name=activity][value=" + key + "]");
+    if (radio) radio.checked = (state.choice === key);
+  });
+  document.getElementById("choiceStatus").textContent =
+    state.choice ? "Your choice: " + TITLES[state.choice] : "";
+  document.getElementById("finishWarn").textContent = "";
+}
+
+/* ---------- comic panels ---------- */
+function savePanels() {
+  for (var i = 0; i < 6; i++) {
+    var cap = document.getElementById("cap-" + i);
+    if (!cap) continue;
+    state.panels[i] = {
+      caption: cap.value,
+      bubbleType: document.getElementById("bubType-" + i).value,
+      bubble: document.getElementById("bub-" + i).value,
+      graphics: document.getElementById("gfx-" + i).value
+    };
+  }
+}
+function renderPanels() {
+  var count = LAYOUTS[state.layout].count;
+  var list = document.getElementById("panelList");
+  list.innerHTML = "";
+  for (var i = 0; i < count; i++) {
+    var p = state.panels[i];
+    var fs = document.createElement("fieldset");
+    fs.className = "panel";
+    var options = BUBBLE_TYPES.map(function (t) {
+      return '<option value="' + t + '"' + (p.bubbleType === t ? " selected" : "") + ">" + t + "</option>";
+    }).join("");
+    fs.innerHTML =
+      "<legend>Frame " + (i + 1) + "</legend>" +
+      '<div class="prompt"><label for="cap-' + i + '">Caption</label>' +
+      '<input type="text" id="cap-' + i + '" value="' + escapeHtml(p.caption) + '"></div>' +
+      '<div class="prompt"><label for="bubType-' + i + '">Bubble type</label>' +
+      '<select id="bubType-' + i + '">' + options + "</select></div>" +
+      '<div class="prompt"><label for="bub-' + i + '">Speech or thought bubble words</label>' +
+      '<textarea id="bub-' + i + '" class="small" rows="2">' + escapeHtml(p.bubble) + "</textarea></div>" +
+      '<div class="prompt"><label for="gfx-' + i + '">Graphics: what will you draw in this frame?</label>' +
+      '<textarea id="gfx-' + i + '" class="small" rows="2">' + escapeHtml(p.graphics) + "</textarea></div>";
+    list.appendChild(fs);
+  }
+}
+function setLayout(layout) {
+  if (!LAYOUTS[layout]) return;
+  savePanels();
+  state.layout = layout;
+  document.querySelectorAll("#layoutChips .chip").forEach(function (chip) {
+    chip.setAttribute("aria-pressed", chip.getAttribute("data-layout") === layout ? "true" : "false");
+  });
+  renderPanels();
+}
+
+/* ---------- poster information rows ---------- */
+function makeInfoRow(value) {
+  var row = document.createElement("div");
+  row.className = "row-line";
+  var input = document.createElement("input");
+  input.type = "text";
+  input.value = value || "";
+  input.setAttribute("aria-label", "One point of information for my poster");
+  var remove = document.createElement("button");
+  remove.type = "button";
+  remove.className = "secondary smallbtn noprint";
+  remove.textContent = "Remove";
+  remove.addEventListener("click", function () {
+    var list = document.getElementById("infoList");
+    if (list.children.length > 1) { row.remove(); } else { input.value = ""; }
+  });
+  row.appendChild(input);
+  row.appendChild(remove);
+  return row;
+}
+function addInfoRow(value) {
+  document.getElementById("infoList").appendChild(makeInfoRow(value));
+}
+function collectInfo() {
+  var out = [];
+  document.querySelectorAll("#infoList input[type=text]").forEach(function (input) {
+    var v = input.value.trim();
+    if (v) out.push(v);
+  });
+  return out;
+}
+
+/* ---------- photo essay entries ---------- */
+function makePhotoEntry(num) {
+  var entry = document.createElement("div");
+  entry.className = "photo-entry";
+  entry.innerHTML =
+    "<h3>Photo " + num + "</h3>" +
+    '<div class="prompt"><label for="phoDesc-' + num + '">The photo</label>' +
+    '<p class="helper">Describe the photo. Where is your pet rock, and what is happening?</p>' +
+    '<textarea id="phoDesc-' + num + '" class="small" rows="2"></textarea></div>' +
+    '<div class="prompt"><label for="phoCap-' + num + '">Caption</label>' +
+    '<p class="helper">Include a caption to describe the photo, from your pet rock\'s point of view.</p>' +
+    '<textarea id="phoCap-' + num + '" class="small" rows="2"></textarea></div>';
+  var removeRow = document.createElement("div");
+  removeRow.className = "btnrow noprint";
+  var remove = document.createElement("button");
+  remove.type = "button";
+  remove.className = "secondary smallbtn";
+  remove.textContent = "Remove this photo";
+  remove.addEventListener("click", function () {
+    var list = document.getElementById("photoList");
+    if (list.children.length > 1) {
+      entry.remove();
+      renumberPhotos();
+    } else {
+      entry.querySelectorAll("textarea").forEach(function (t) { t.value = ""; });
+    }
+  });
+  removeRow.appendChild(remove);
+  entry.appendChild(removeRow);
+  return entry;
+}
+function renumberPhotos() {
+  document.querySelectorAll("#photoList .photo-entry").forEach(function (entry, idx) {
+    var num = idx + 1;
+    entry.querySelector("h3").textContent = "Photo " + num;
+    var tas = entry.querySelectorAll("textarea");
+    tas[0].id = "phoDesc-" + num;
+    tas[0].previousElementSibling.setAttribute("for", "phoDesc-" + num);
+    tas[1].id = "phoCap-" + num;
+    tas[1].previousElementSibling.setAttribute("for", "phoCap-" + num);
+  });
+}
+function addPhoto() {
+  var list = document.getElementById("photoList");
+  list.appendChild(makePhotoEntry(list.children.length + 1));
+}
+function collectPhotos() {
+  var out = [];
+  document.querySelectorAll("#photoList .photo-entry").forEach(function (entry) {
+    var tas = entry.querySelectorAll("textarea");
+    var desc = tas[0].value.trim();
+    var cap = tas[1].value.trim();
+    if (desc || cap) out.push({ desc: desc, cap: cap });
+  });
+  return out;
+}
+
+/* ---------- collect and summarize ---------- */
+function collectAnswers() {
+  savePanels();
+  var count = LAYOUTS[state.layout].count;
+  var panels = [];
+  for (var i = 0; i < count; i++) {
+    var p = state.panels[i];
+    panels.push({
+      caption: (p.caption || "").trim(),
+      bubbleType: p.bubbleType,
+      bubble: (p.bubble || "").trim(),
+      graphics: (p.graphics || "").trim()
+    });
+  }
+  return {
+    choice: state.choice,
+    comic: {
+      character: val("comicCharacter"),
+      story: val("comicStory"),
+      colour: val("comicColour"),
+      layoutLabel: LAYOUTS[state.layout].label,
+      panels: panels
+    },
+    poster: {
+      topic: val("posterTopic"),
+      audience: val("posterAudience"),
+      heading: val("posterHeading"),
+      info: collectInfo(),
+      fonts: val("posterFonts"),
+      visuals: val("posterVisuals"),
+      color: val("posterColor"),
+      organization: val("posterOrganization")
+    },
+    photo: {
+      title: val("photoTitle"),
+      rockName: val("photoRockName"),
+      photos: collectPhotos(),
+      shapes: val("photoShapes"),
+      space: val("photoSpace")
+    }
+  };
+}
+function blankOr(text) {
+  return text ? "<p>" + escapeHtml(text) + "</p>" : '<p class="blank">(left blank)</p>';
+}
+function answerBlock(title, text) {
+  return '<div class="answer"><h3>' + escapeHtml(title) + "</h3>" + blankOr(text) + "</div>";
+}
+function summaryHtml(a) {
+  var html = "";
+  if (!a.choice) return '<p class="blank">(no activity chosen yet)</p>';
+  html += '<div class="answer"><h3>My choice</h3><p>' + escapeHtml(TITLES[a.choice]) + "</p></div>";
+  if (a.choice === "comic") {
+    html += answerBlock("Main character", a.comic.character);
+    html += answerBlock("My story", a.comic.story);
+    html += answerBlock("Colour", a.comic.colour);
+    html += '<div class="answer"><h3>' + escapeHtml(a.comic.layoutLabel) + "</h3>";
+    a.comic.panels.forEach(function (p, i) {
+      html += "<p><strong>Frame " + (i + 1) + "</strong></p>";
+      html += "<p>Caption: " + (p.caption ? escapeHtml(p.caption) : "(left blank)") + "</p>";
+      if (p.bubbleType !== "No bubble") {
+        html += "<p>" + escapeHtml(p.bubbleType) + ": " + (p.bubble ? escapeHtml(p.bubble) : "(left blank)") + "</p>";
+      }
+      html += "<p>Graphics: " + (p.graphics ? escapeHtml(p.graphics) : "(left blank)") + "</p>";
+    });
+    html += "</div>";
+  }
+  if (a.choice === "poster") {
+    html += answerBlock("My topic", a.poster.topic);
+    html += answerBlock("My audience", a.poster.audience);
+    html += answerBlock("Heading", a.poster.heading);
+    html += '<div class="answer"><h3>Information on my poster</h3>';
+    if (a.poster.info.length) {
+      html += "<ul>" + a.poster.info.map(function (t) { return "<li>" + escapeHtml(t) + "</li>"; }).join("") + "</ul>";
+    } else {
+      html += '<p class="blank">(no points added)</p>';
+    }
+    html += "</div>";
+    html += answerBlock("Fonts", a.poster.fonts);
+    html += answerBlock("Visuals", a.poster.visuals);
+    html += answerBlock("Color", a.poster.color);
+    html += answerBlock("Organization", a.poster.organization);
+  }
+  if (a.choice === "photo") {
+    html += answerBlock("Title", a.photo.title);
+    html += answerBlock("My pet rock's name", a.photo.rockName);
+    html += '<div class="answer"><h3>My photos</h3>';
+    if (a.photo.photos.length) {
+      a.photo.photos.forEach(function (ph, i) {
+        html += "<p><strong>Photo " + (i + 1) + "</strong></p>";
+        html += "<p>" + (ph.desc ? escapeHtml(ph.desc) : "(left blank)") + "</p>";
+        html += "<p>Caption: " + (ph.cap ? escapeHtml(ph.cap) : "(left blank)") + "</p>";
+      });
+    } else {
+      html += '<p class="blank">(no photos planned yet)</p>';
+    }
+    html += "</div>";
+    html += answerBlock("Shapes for attention and balance", a.photo.shapes);
+    html += answerBlock("White space (background colour)", a.photo.space);
+  }
+  return html;
+}
+function summaryText(a) {
+  var lines = [document.title, document.querySelector(".subtitle").textContent, ""];
+  if (!a.choice) {
+    lines.push("(no activity chosen yet)");
+    return lines.join("\n");
+  }
+  lines.push("My choice: " + TITLES[a.choice]);
+  lines.push("");
+  if (a.choice === "comic") {
+    lines.push("Main character: " + (a.comic.character || "(left blank)"));
+    lines.push("My story: " + (a.comic.story || "(left blank)"));
+    lines.push("Colour: " + (a.comic.colour || "(left blank)"));
+    lines.push(a.comic.layoutLabel);
+    lines.push("");
+    a.comic.panels.forEach(function (p, i) {
+      lines.push("Frame " + (i + 1));
+      lines.push("Caption: " + (p.caption || "(left blank)"));
+      if (p.bubbleType !== "No bubble") {
+        lines.push(p.bubbleType + ": " + (p.bubble || "(left blank)"));
+      }
+      lines.push("Graphics: " + (p.graphics || "(left blank)"));
+      lines.push("");
+    });
+  }
+  if (a.choice === "poster") {
+    lines.push("My topic: " + (a.poster.topic || "(left blank)"));
+    lines.push("My audience: " + (a.poster.audience || "(left blank)"));
+    lines.push("Heading: " + (a.poster.heading || "(left blank)"));
+    lines.push("Information on my poster:");
+    if (a.poster.info.length) {
+      a.poster.info.forEach(function (t) { lines.push("- " + t); });
+    } else { lines.push("(no points added)"); }
+    lines.push("Fonts: " + (a.poster.fonts || "(left blank)"));
+    lines.push("Visuals: " + (a.poster.visuals || "(left blank)"));
+    lines.push("Color: " + (a.poster.color || "(left blank)"));
+    lines.push("Organization: " + (a.poster.organization || "(left blank)"));
+  }
+  if (a.choice === "photo") {
+    lines.push("Title: " + (a.photo.title || "(left blank)"));
+    lines.push("My pet rock's name: " + (a.photo.rockName || "(left blank)"));
+    lines.push("");
+    if (a.photo.photos.length) {
+      a.photo.photos.forEach(function (ph, i) {
+        lines.push("Photo " + (i + 1));
+        lines.push(ph.desc || "(left blank)");
+        lines.push("Caption: " + (ph.cap || "(left blank)"));
+        lines.push("");
+      });
+    } else {
+      lines.push("(no photos planned yet)");
+      lines.push("");
+    }
+    lines.push("Shapes for attention and balance: " + (a.photo.shapes || "(left blank)"));
+    lines.push("White space (background colour): " + (a.photo.space || "(left blank)"));
+  }
+  return lines.join("\n");
+}
+
+/* ---------- summary view ---------- */
+function showSummary() {
+  if (!state.choice) {
+    document.getElementById("finishWarn").textContent = "Choose ONE activity above first, then plan it out.";
+    document.getElementById("choiceStatus").scrollIntoView();
+    return;
+  }
+  var a = collectAnswers();
+  document.getElementById("answers").innerHTML = summaryHtml(a);
+  window.__lastSummaryText = summaryText(a);
+  document.getElementById("formView").classList.add("hidden");
+  document.getElementById("summaryView").classList.remove("hidden");
+  document.getElementById("summaryView").scrollIntoView();
+}
+function backToForm() {
+  document.getElementById("summaryView").classList.add("hidden");
+  document.getElementById("formView").classList.remove("hidden");
+  document.getElementById("formView").scrollIntoView();
+}
+function copyWork() {
+  var text = window.__lastSummaryText || "";
+  var done = function () {
+    document.getElementById("copyNote").textContent = "Copied. You can paste your work wherever you keep it.";
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done); });
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+function fallbackCopy(text, done) {
+  var ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand("copy"); done(); } catch (e) { /* clipboard unavailable */ }
+  document.body.removeChild(ta);
+}
+
+/* ---------- wire up ---------- */
+document.querySelectorAll("input[name=activity]").forEach(function (radio) {
+  radio.addEventListener("change", function () { setChoice(radio.value); });
+});
+document.querySelectorAll("#layoutChips .chip").forEach(function (chip) {
+  chip.addEventListener("click", function () { setLayout(chip.getAttribute("data-layout")); });
+});
+document.getElementById("addInfo").addEventListener("click", function () { addInfoRow(""); });
+document.getElementById("addPhoto").addEventListener("click", function () { addPhoto(); });
+document.getElementById("seeWork").addEventListener("click", showSummary);
+document.getElementById("backEdit").addEventListener("click", backToForm);
+document.getElementById("printBtn").addEventListener("click", function () { window.print(); });
+document.getElementById("copyBtn").addEventListener("click", copyWork);
+
+renderPanels();
+addInfoRow(""); addInfoRow(""); addInfoRow("");
+addPhoto(); addPhoto(); addPhoto(); addPhoto();
+
+window.__APP = {
+  state: state,
+  setChoice: setChoice,
+  setLayout: setLayout,
+  addInfoRow: addInfoRow,
+  addPhoto: addPhoto,
+  collectAnswers: collectAnswers,
+  summaryHtml: summaryHtml,
+  summaryText: summaryText,
+  showSummary: showSummary
+};
+</script>
+</body>
+</html>
